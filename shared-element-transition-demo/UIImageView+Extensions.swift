@@ -29,28 +29,37 @@ extension UIImageView {
         )
     }
     
-    func convertFrame(from rect: CGRect, to contentMode: UIView.ContentMode) -> CGRect {
-        guard let imageSize = image?.size else { return .zero }
+    func convertFrame(in rect: CGRect, to targetContentMode: UIView.ContentMode) -> CGRect {
+        guard let imageSize = image?.size,
+              contentMode != targetContentMode else { return .zero }
         
-        switch contentMode {
+        let wRatio = rect.size.width / imageSize.width
+        let hRatio = rect.size.height / imageSize.height
+        
+        let w: CGFloat
+        let h: CGFloat
+        
+        switch targetContentMode {
         case .scaleAspectFit:
-            return rect
-            
+            let r = min(wRatio, hRatio)
+            w = imageSize.width * r
+            h = imageSize.height * r
+                        
         case .scaleAspectFill:
-            let r = max(rect.size.width / imageSize.width, rect.size.height / imageSize.height)
-            let w = imageSize.width * r
-            let h = imageSize.height * r
-            
-            return CGRect(
-                x: rect.origin.x - (w - rect.width) / 2,
-                y: rect.origin.y - (h - rect.height) / 2,
-                width: w,
-                height: h
-            )
+            let r = max(wRatio, hRatio)
+            w = imageSize.width * r
+            h = imageSize.height * r
             
         default:
             return rect
         }
+        
+        return CGRect(
+            x: rect.origin.x - (w - rect.width) / 2,
+            y: rect.origin.y - (h - rect.height) / 2,
+            width: w,
+            height: h
+        )
     }
     
     func roundCornersForAspectFit(radius: CGFloat) {

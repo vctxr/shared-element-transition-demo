@@ -35,6 +35,7 @@ class FirstVC: UIViewController {
     // MARK: - Variables
     
     private var didSetupConstraints = false
+    private var interactiveTransitioning: SharedElementInteractiveTransition?
 
     // MARK: - Lifecycle
     
@@ -43,6 +44,10 @@ class FirstVC: UIViewController {
         setupSubviews()
         view.backgroundColor = .white
         view.setNeedsUpdateConstraints()
+
+        interactiveTransitioning = SharedElementInteractiveTransition(attachTo: imageView) { [weak self] in
+            self?.didTapImage()
+        }
     }
     
     override func updateViewConstraints() {
@@ -92,9 +97,13 @@ class FirstVC: UIViewController {
     }
 }
 
+// MARK: - SharedElementTransitionable
+
 extension FirstVC: SharedElementTransitionable {
     var sharedElementView: UIView { imageView }
 }
+
+// MARK: - UIViewControllerTransitioningDelegate
 
 extension FirstVC: UIViewControllerTransitioningDelegate {
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
@@ -104,4 +113,30 @@ extension FirstVC: UIViewControllerTransitioningDelegate {
     func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         SharedElementTransition(transitionMode: .dismiss)
     }
+    
+    func interactionControllerForPresentation(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+        guard interactiveTransitioning?.interactionInProgress == true else { return nil }
+        return interactiveTransitioning
+    }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+import SwiftUI
+
+@available (iOS 13.0, *)
+struct FirstVCPreview: PreviewProvider {
+    static var previews: some View {
+        ViewControllerPreview {
+            FirstVC()
+        }
+        .previewDevice(PreviewDevice(rawValue: "iPhone 12"))
+        
+        ViewControllerPreview {
+            FirstVC()
+        }
+        .previewDevice(PreviewDevice(rawValue: "iPhone SE"))
+    }
+}
+#endif

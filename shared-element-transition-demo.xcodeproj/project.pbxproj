@@ -15,6 +15,8 @@
 		5711E92C26FEF490005B6E36 /* SharedElementTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5711E92B26FEF490005B6E36 /* SharedElementTransition.swift */; };
 		5711E92E26FEFC6A005B6E36 /* SharedElementTransitionable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5711E92D26FEFC6A005B6E36 /* SharedElementTransitionable.swift */; };
 		5711E93026FF15FC005B6E36 /* UIImageView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5711E92F26FF15FC005B6E36 /* UIImageView+Extensions.swift */; };
+		5725B073270813FB003C9E10 /* SharedElementInteractiveTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5725B072270813FB003C9E10 /* SharedElementInteractiveTransition.swift */; };
+		5725B0752708C0D9003C9E10 /* ViewControllerPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5725B0742708C0D9003C9E10 /* ViewControllerPreview.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +30,8 @@
 		5711E92B26FEF490005B6E36 /* SharedElementTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedElementTransition.swift; sourceTree = "<group>"; };
 		5711E92D26FEFC6A005B6E36 /* SharedElementTransitionable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedElementTransitionable.swift; sourceTree = "<group>"; };
 		5711E92F26FF15FC005B6E36 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
+		5725B072270813FB003C9E10 /* SharedElementInteractiveTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedElementInteractiveTransition.swift; sourceTree = "<group>"; };
+		5725B0742708C0D9003C9E10 /* ViewControllerPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerPreview.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,7 +68,9 @@
 				5711E91826FEED17005B6E36 /* FirstVC.swift */,
 				5711E92926FEF128005B6E36 /* SecondVC.swift */,
 				5711E92B26FEF490005B6E36 /* SharedElementTransition.swift */,
+				5725B072270813FB003C9E10 /* SharedElementInteractiveTransition.swift */,
 				5711E92F26FF15FC005B6E36 /* UIImageView+Extensions.swift */,
+				5725B0742708C0D9003C9E10 /* ViewControllerPreview.swift */,
 				5711E92D26FEFC6A005B6E36 /* SharedElementTransitionable.swift */,
 				5711E92826FEED78005B6E36 /* Resources */,
 			);
@@ -151,11 +157,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				5711E93026FF15FC005B6E36 /* UIImageView+Extensions.swift in Sources */,
+				5725B073270813FB003C9E10 /* SharedElementInteractiveTransition.swift in Sources */,
 				5711E92C26FEF490005B6E36 /* SharedElementTransition.swift in Sources */,
 				5711E91926FEED17005B6E36 /* FirstVC.swift in Sources */,
 				5711E92E26FEFC6A005B6E36 /* SharedElementTransitionable.swift in Sources */,
 				5711E92A26FEF128005B6E36 /* SecondVC.swift in Sources */,
 				5711E91526FEED17005B6E36 /* AppDelegate.swift in Sources */,
+				5725B0752708C0D9003C9E10 /* ViewControllerPreview.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

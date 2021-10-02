@@ -8,6 +8,8 @@
 import UIKit
 
 class SecondVC: UIViewController {
+    // MARK: - UI Components
+    
     private let closeButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -48,10 +50,10 @@ class SecondVC: UIViewController {
             closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             closeButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             
-            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            imageView.topAnchor.constraint(equalTo: view.topAnchor),
             imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
         didSetupConstraints = true
@@ -60,8 +62,8 @@ class SecondVC: UIViewController {
     // MARK: - Private Functions
     
     private func setupSubviews() {
-        view.addSubview(closeButton)
         view.addSubview(imageView)
+        view.addSubview(closeButton)
     }
     
     // MARK: - Action Handlers
@@ -135,7 +137,32 @@ class SecondVC: UIViewController {
     }
 }
 
+// MARK: - SharedElementTransitionable
+
 extension SecondVC: SharedElementTransitionable {
     var sharedElementView: UIView { imageView }
     var dimmingBackgroundAlpha: CGFloat { backgroundViewAlpha }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+import SwiftUI
+
+@available (iOS 13.0, *)
+struct SecondVCPreview: PreviewProvider {
+    static var previews: some View {
+        ViewControllerPreview {
+            SecondVC()
+        }
+        .edgesIgnoringSafeArea(.all)
+        .previewDevice(PreviewDevice(rawValue: "iPhone 12"))
+        
+        ViewControllerPreview {
+            SecondVC()
+        }
+        .edgesIgnoringSafeArea(.all)
+        .previewDevice(PreviewDevice(rawValue: "iPhone SE"))
+    }
+}
+#endif
