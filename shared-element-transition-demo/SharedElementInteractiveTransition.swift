@@ -25,14 +25,23 @@ class SharedElementInteractiveTransition: UIPercentDrivenInteractiveTransition {
     }
     
     @objc func handleGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
+        func getProgress() -> CGFloat {
+            let translation = gestureRecognizer.translation(in: gestureRecognizer.view)
+            return max(abs(translation.x), abs(translation.y)) / 400
+        }
+                
+        func getVelocity() -> CGFloat {
+            let vel = gestureRecognizer.velocity(in: gestureRecognizer.view)
+            return sqrt(vel.x * vel.x + vel.y * vel.y)
+        }
+        
         switch gestureRecognizer.state {
         case .began:
             interactionInProgress = true
             presentViewController()
             
         case .changed:
-            let translation = gestureRecognizer.translation(in: gestureRecognizer.view)
-            let progress = max(abs(translation.x), abs(translation.y)) / 400
+            let progress = getProgress()
             shouldCompleteTransition = progress > 0.25
             update(progress)
 
@@ -42,7 +51,8 @@ class SharedElementInteractiveTransition: UIPercentDrivenInteractiveTransition {
             
         case .ended:
             interactionInProgress = false
-            if shouldCompleteTransition {
+
+            if shouldCompleteTransition || getVelocity() > 100 {
                 finish()
             } else {
                 cancel()

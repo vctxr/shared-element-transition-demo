@@ -72,7 +72,7 @@ class SecondVC: UIViewController {
         dismiss(animated: true)
     }
     
-    @objc private func didPan(_ gesture: UIPanGestureRecognizer) {
+    @objc private func didPan(_ gestureRecognizer: UIPanGestureRecognizer) {
         func getProgress() -> CGFloat {
             let origin = imageViewOriginalCenter
             let changeX = abs(imageView.center.x - origin.x)
@@ -84,16 +84,16 @@ class SecondVC: UIViewController {
         
         func getCenterChange() -> CGPoint {
             let origin = imageView.center
-            let change = gesture.translation(in: view)
+            let change = gestureRecognizer.translation(in: view)
             return CGPoint(x: origin.x + change.x, y: origin.y + change.y)
         }
                 
         func getVelocity() -> CGFloat {
-            let vel = gesture.velocity(in: view)
+            let vel = gestureRecognizer.velocity(in: view)
             return sqrt(vel.x * vel.x + vel.y * vel.y)
         }
         
-        switch gesture.state {
+        switch gestureRecognizer.state {
         case .began:
             imageViewOriginalCenter = imageView.center
             closeButton.isHidden = true
@@ -112,7 +112,7 @@ class SecondVC: UIViewController {
             backgroundViewAlpha = dimmingAlpha
             view.backgroundColor = view.backgroundColor?.withAlphaComponent(backgroundViewAlpha)
             
-            gesture.setTranslation(.zero, in: nil)
+            gestureRecognizer.setTranslation(.zero, in: nil)
             
         case .ended:
             if getProgress() > 0.25 || getVelocity() > 1000 {
