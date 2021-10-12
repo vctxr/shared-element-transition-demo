@@ -31,9 +31,6 @@ class SharedElementTransition: NSObject {
     // MARK: - Variables
     
     private let transitionMode: TransitionMode
-    private let duration: TimeInterval = 0.35
-    private let springDamping: CGFloat = 0.85
-    private let initialSpringVelocity: CGFloat = 0.1
     
     // MARK: - Inits
     
@@ -43,16 +40,17 @@ class SharedElementTransition: NSObject {
     
     // MARK: - Private Functions
     
-    private func animatePresent(
+    private func animatePresentation(
         sourceView: UIView,
         absoluteSourceViewFrame: CGRect,
         sourceImageView: UIImageView,
-        targetView: UIView,
         absoluteTargetViewFrame: CGRect,
         targetImageView: UIImageView,
-        containerView: UIView,
-        completion: ((Bool) -> Void)? = nil
+        transitionContext: UIViewControllerContextTransitioning
     ) {
+        guard let toVC = transitionContext.viewController(forKey: .to) else { return }
+        let containerView = transitionContext.containerView
+        
         /// Calculate the `sourceImageView` frame as if it were `scaleAspectFill`.
         sourceImageView.contentMode = .scaleAspectFit
         let initialFrame = sourceImageView.convertFrame(in: absoluteSourceViewFrame, to: .scaleAspectFill)
@@ -66,28 +64,39 @@ class SharedElementTransition: NSObject {
         sourceView.isHidden = true
                                                           
         // Animate to the final state.
-        startAnimation(
-            animations: {
-                sourceImageView.frame = absoluteTargetViewFrame
-                self.maskingView.frame = targetImageView.aspectFitFrame
-                self.maskingView.layer.cornerRadius = 0
-                self.dimmingBackgroundView.alpha = 1
-            },
-            completion: completion
-        )
+        SharedElementAnimator.animate {
+            sourceImageView.frame = absoluteTargetViewFrame
+            self.maskingView.frame = targetImageView.aspectFitFrame
+            self.maskingView.layer.cornerRadius = 0
+            self.dimmingBackgroundView.alpha = 1
+        } completion: { isComplete in
+            /// To remove all uneccessary `subviews` after animation is completed.
+            containerView.subviews.forEach { $0.removeFromSuperview() }
+            
+            if transitionContext.transitionWasCancelled {
+                sourceView.isHidden = false
+                transitionContext.cancelInteractiveTransition()
+                transitionContext.completeTransition(false)
+            } else {
+                containerView.addSubview(toVC.view)
+                transitionContext.finishInteractiveTransition()
+                transitionContext.completeTransition(true)
+            }
+        }
     }
     
-    private func animateDismiss(
+    private func animateDismissal(
         sourceView: UIView,
         absoluteSourceViewFrame: CGRect,
         sourceImageView: UIImageView,
         targetView: UIView,
         absoluteTargetViewFrame: CGRect,
         targetImageView: UIImageView,
-        containerView: UIView,
-        fromVC: SharedElementTransitionable,
-        completion: ((Bool) -> Void)? = nil
+        transitionContext: UIViewControllerContextTransitioning
     ) {
+        guard let fromVC = transitionContext.viewController(forKey: .from) as? SharedElementTransitionable else { return }
+        let containerView = transitionContext.containerView
+
         /// Calculate the `sourceImageView` frame as if it were `scaleAspectFit`.
         sourceImageView.contentMode = .scaleAspectFill
         let initialFrame = sourceImageView.convertFrame(in: absoluteSourceViewFrame, to: .scaleAspectFit)
@@ -102,27 +111,15 @@ class SharedElementTransition: NSObject {
         fromVC.view.isHidden = true
       
         // Animate to the final state.
-        startAnimation(
-            animations: {
-                sourceImageView.frame = absoluteTargetViewFrame
-                self.maskingView.frame = sourceImageView.convert(absoluteTargetViewFrame, from: nil)
-                self.maskingView.layer.cornerRadius = targetView.layer.cornerRadius
-                self.dimmingBackgroundView.alpha = 0
-            },
-            completion: completion
-        )
-    }
-    
-    private func startAnimation(animations: @escaping () -> Void, completion: ((Bool) -> Void)? = nil) {
-        UIView.animate(
-            withDuration: duration,
-            delay: 0,
-            usingSpringWithDamping: springDamping,
-            initialSpringVelocity: initialSpringVelocity,
-            options: [],
-            animations: animations,
-            completion: completion
-        )
+        SharedElementAnimator.animate {
+            sourceImageView.frame = absoluteTargetViewFrame
+            self.maskingView.frame = sourceImageView.convert(absoluteTargetViewFrame, from: nil)
+            self.maskingView.layer.cornerRadius = targetView.layer.cornerRadius
+            self.dimmingBackgroundView.alpha = 0
+        } completion: { isComplete in
+            targetView.isHidden = !isComplete
+            transitionContext.completeTransition(isComplete)
+        }
     }
 }
 
@@ -130,7 +127,7 @@ class SharedElementTransition: NSObject {
 
 extension SharedElementTransition: UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        duration
+        SharedElementAnimator.Constants.transitionDuration
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -162,43 +159,25 @@ extension SharedElementTransition: UIViewControllerAnimatedTransitioning {
         containerView.addSubview(sourceImageView)
         
         if transitionMode == .present {
-            animatePresent(
+            animatePresentation(
                 sourceView: sourceView,
                 absoluteSourceViewFrame: absoluteSourceViewFrame,
                 sourceImageView: sourceImageView,
-                targetView: targetView,
                 absoluteTargetViewFrame: absoluteTargetViewFrame,
                 targetImageView: targetImageView,
-                containerView: containerView
-            ) { _ in
-                /// To remove all uneccessary `subviews` after animation is completed.
-                containerView.subviews.forEach { $0.removeFromSuperview() }
-                
-                if transitionContext.transitionWasCancelled {
-                    sourceView.isHidden = false
-                    transitionContext.cancelInteractiveTransition()
-                    transitionContext.completeTransition(false)
-                } else {
-                    containerView.addSubview(toVC.view)
-                    transitionContext.finishInteractiveTransition()
-                    transitionContext.completeTransition(true)
-                }
-            }
+                transitionContext: transitionContext
+            )
 
         } else {
-            animateDismiss(
+            animateDismissal(
                 sourceView: sourceView,
                 absoluteSourceViewFrame: absoluteSourceViewFrame,
                 sourceImageView: sourceImageView,
                 targetView: targetView,
                 absoluteTargetViewFrame: absoluteTargetViewFrame,
                 targetImageView: targetImageView,
-                containerView: containerView,
-                fromVC: fromVC
-            ) { _ in
-                targetView.isHidden = false
-                transitionContext.completeTransition(true)
-            }
+                transitionContext: transitionContext
+            )
         }
     }
 }

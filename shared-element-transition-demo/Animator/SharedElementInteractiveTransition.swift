@@ -9,8 +9,6 @@ import UIKit
 
 class SharedElementInteractiveTransition: UIPercentDrivenInteractiveTransition {
     private(set) var interactionInProgress = false
-
-    private var shouldCompleteTransition = false
     private let presentViewController: () -> Void
 
     init(attachTo view: UIView, presentViewController: @escaping () -> Void) {
@@ -41,9 +39,7 @@ class SharedElementInteractiveTransition: UIPercentDrivenInteractiveTransition {
             presentViewController()
             
         case .changed:
-            let progress = getProgress()
-            shouldCompleteTransition = progress > 0.25
-            update(progress)
+            update(getProgress())
 
         case .cancelled:
             interactionInProgress = false
@@ -52,7 +48,7 @@ class SharedElementInteractiveTransition: UIPercentDrivenInteractiveTransition {
         case .ended:
             interactionInProgress = false
 
-            if shouldCompleteTransition || getVelocity() > 100 {
+            if getProgress() > 0.25 || getVelocity() > 100 {
                 finish()
             } else {
                 cancel()
